@@ -5,6 +5,7 @@
 #include <SFML/Network.hpp>
 
 #include "client.hpp"
+#include "welcome.hpp"
 
 #define SERVER_PORT 1212
 

@@ -44,6 +44,7 @@
 		</Linker>
 		<Unit filename="include/client.hpp" />
 		<Unit filename="include/mud.hpp" />
+		<Unit filename="include/welcome.hpp" />
 		<Unit filename="src/client.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mud.cpp" />

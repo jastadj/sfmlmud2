@@ -65,7 +65,13 @@ void Mud::sendAndRecieve()
                     delete newclient;
                 }
                 else std::cout << "Accepted new client.\n";
-                newclient->send("Welcome!\n");
+
+                // set initial client context (function pointer)
+                // show welcome screen
+                newclient->func = welcome;
+                newclient->func(newclient);
+                // show login screen
+
             }
             // check for clients that are ready to send
             else
@@ -78,6 +84,9 @@ void Mud::sendAndRecieve()
                     {
                         m_Clients[i]->receive();
                         if(!m_Clients[i]->isConnected()) m_ClientRemovalQueue.push_back(m_Clients[i]);
+                        // after receiving input from client, give feedback
+                        else m_Clients[i]->func(m_Clients[i]);
+
                     }
                 }
                 m_ClientMutex.unlock();

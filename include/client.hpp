@@ -32,9 +32,11 @@ public:
 
     // receive data from the client, results are stored in m_LastInput
     bool receive();
-
     // send data to the client
     bool send(std::string str);
+
+    // client function pointer (give client feedback context with the function pointer)
+    int (*func)(Client *tclient);
 
 };
 #endif // CLASS_CLIENT
