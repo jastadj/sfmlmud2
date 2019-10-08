@@ -3,11 +3,14 @@
 
 #include <vector>
 #include <SFML/Network.hpp>
+#include "sqlite3.h"
 
 #include "client.hpp"
 #include "welcome.hpp"
+#include "account.hpp"
 
 #define SERVER_PORT 1212
+#define DB_FILE "mud.db"
 
 class Mud
 {
@@ -31,6 +34,9 @@ private:
     bool addClient(Client *tclient);
     bool removeClient(Client *tclient);
 
+    // sqlite database
+    sqlite3 *m_DB;
+
 
 public:
     // get singleton
@@ -41,5 +47,10 @@ public:
     }
 
     void start();
+
+    static int mainGame(Client *tclient);
+
+    // database managers
+    AccountManager *m_AccountManager;
 };
 #endif // CLASS_MUD

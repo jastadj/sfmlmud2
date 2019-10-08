@@ -7,6 +7,9 @@ Client::Client(sf::TcpSocket *tsocket)
     m_Socket = tsocket;
     m_Connected = true;
 
+    m_Username = "guest";
+    m_CurrentRoom = 0;
+
     // init storage
     m_StrRegisters.resize(3);
     m_IntRegisters.resize(3);

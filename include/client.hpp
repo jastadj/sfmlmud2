@@ -12,9 +12,15 @@ private:
     sf::TcpSocket *m_Socket;
     bool m_Connected;
 
+    std::string m_Username;
+    int m_CurrentRoom;
+
 public:
     Client(sf::TcpSocket *tsocket);
     ~Client();
+
+    std::string getName() { return m_Username;}
+    int getRoom() { return m_CurrentRoom;}
 
     // client data storage
     std::string m_LastInput;                // last recieved input
@@ -37,6 +43,8 @@ public:
 
     // client function pointer (give client feedback context with the function pointer)
     int (*func)(Client *tclient);
+
+    friend class AccountManager;
 
 };
 #endif // CLASS_CLIENT

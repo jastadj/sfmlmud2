@@ -11,6 +11,7 @@
 
 static int welcome(Client *tclient)
 {
+    if(!tclient) return 0;
     static bool loaded = false;
     static std::string m_WelcomeScreen;
 
@@ -35,6 +36,7 @@ static int welcome(Client *tclient)
     }
 
     tclient->send(m_WelcomeScreen);
+    return 0;
 }
 
 #endif // CLASS_WELCOME

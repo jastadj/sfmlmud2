@@ -6,12 +6,13 @@ Mud *Mud::m_Instance = NULL;
 
 Mud::Mud()
 {
-    m_Port = SERVER_PORT;
+
 }
 
 Mud::~Mud()
 {
-
+    // close database connection
+    sqlite3_close(m_DB);
 }
 
 void Mud::start()
@@ -20,8 +21,18 @@ void Mud::start()
     if(started) return;
     started = true;
     std::cout << "Starting mud...\n";
-
     m_ServerState = SERVER_INIT;
+
+    // open connection to sqlite database
+    if(sqlite3_open(std::string(DB_FILE).c_str(), &m_DB))
+    {
+        std::cout << "Error opening DB:" << DB_FILE << ", exiting...\n";
+        return;
+    }
+
+    // initialize account manager
+    std::cout << "Initializing account manager...\n";
+    m_AccountManager = new AccountManager(m_DB);
 
     // start send and receive thread
     m_SendAndReceiveThread = new sf::Thread(Mud::sendAndRecieve, this);
@@ -38,6 +49,7 @@ void Mud::sendAndRecieve()
     std::cout << "Initializing server...\n";
 
     // init server
+    m_Port = SERVER_PORT;
     m_Listener.listen(m_Port);
     updateSelector();
 
@@ -71,6 +83,8 @@ void Mud::sendAndRecieve()
                 newclient->func = welcome;
                 newclient->func(newclient);
                 // show login screen
+                newclient->func = AccountManager::loginProcess;
+                newclient->func(newclient);
 
             }
             // check for clients that are ready to send
@@ -83,10 +97,9 @@ void Mud::sendAndRecieve()
                     if(m_Clients[i]->isReady(&m_Selector))
                     {
                         m_Clients[i]->receive();
-                        if(!m_Clients[i]->isConnected()) m_ClientRemovalQueue.push_back(m_Clients[i]);
                         // after receiving input from client, give feedback
-                        else m_Clients[i]->func(m_Clients[i]);
-
+                        m_Clients[i]->func(m_Clients[i]);
+                        if(!m_Clients[i]->isConnected()) m_ClientRemovalQueue.push_back(m_Clients[i]);
                     }
                 }
                 m_ClientMutex.unlock();
@@ -174,4 +187,10 @@ void Mud::updateSelector()
         }
     }
     m_ClientMutex.unlock();
+}
+
+int Mud::mainGame(Client *tclient)
+{
+    if(!tclient) return 0;
+    tclient->send("MAIN GAME");
 }
