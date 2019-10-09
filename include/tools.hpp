@@ -18,6 +18,8 @@ std::vector<int> getVectorOfInts(int minval, int maxval);
 std::vector<std::string> csvParse(std::string pstring, char delim = ',');
 bool isNumber(std::string tstring);
 bool isAlpha(std::string tstring);
+bool isAlphaNumeric(std::string tstring);
+bool hasSpaces(std::string tstring);
 bool isIpAddress(std::string tstring);
 std::string capitalize(std::string tstring);
 

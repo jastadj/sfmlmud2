@@ -34,6 +34,10 @@ void Mud::start()
     std::cout << "Initializing account manager...\n";
     m_AccountManager = new AccountManager(m_DB);
 
+    // initialize zone/room manager
+    std::cout << "Initializing zone manager...\n";
+    m_ZoneManager = new ZoneManager(m_DB);
+
     // start send and receive thread
     m_SendAndReceiveThread = new sf::Thread(Mud::sendAndRecieve, this);
     m_SendAndReceiveThread->launch();
@@ -193,4 +197,5 @@ int Mud::mainGame(Client *tclient)
 {
     if(!tclient) return 0;
     tclient->send("MAIN GAME");
+    return 0;
 }

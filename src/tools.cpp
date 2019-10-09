@@ -131,6 +131,30 @@ bool isAlpha(std::string tstring)
     return true;
 }
 
+bool isAlphaNumeric(std::string tstring)
+{
+    static const std::string num("0123456789");
+
+    for(int i = 0; i < int(tstring.size()); i++)
+    {
+        int cval = int(tstring[i]);
+        if( ((cval < int('a') || cval > int('z') ) && (cval < int('A') || cval < int('Z')) )
+           || ( num.find(tstring[i]) == std::string::npos ) ) return false;
+    }
+
+    return true;
+}
+
+bool hasSpaces(std::string tstring)
+{
+    for(int i = 0; i < int(tstring.size()); i++)
+    {
+        if(tstring[i] == ' ') return true;
+    }
+
+    return false;
+}
+
 bool isIpAddress(std::string tstring)
 {
     if(tstring.empty()) return false;

@@ -8,6 +8,7 @@
 #include "client.hpp"
 #include "welcome.hpp"
 #include "account.hpp"
+#include "zone.hpp"
 
 #define SERVER_PORT 1212
 #define DB_FILE "mud.db"
@@ -52,5 +53,6 @@ public:
 
     // database managers
     AccountManager *m_AccountManager;
+    ZoneManager *m_ZoneManager;
 };
 #endif // CLASS_MUD

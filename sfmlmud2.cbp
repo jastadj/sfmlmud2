@@ -47,11 +47,13 @@
 		<Unit filename="include/mud.hpp" />
 		<Unit filename="include/tools.hpp" />
 		<Unit filename="include/welcome.hpp" />
+		<Unit filename="include/zone.hpp" />
 		<Unit filename="src/account.cpp" />
 		<Unit filename="src/client.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mud.cpp" />
 		<Unit filename="src/tools.cpp" />
+		<Unit filename="src/zone.cpp" />
 		<Unit filename="thirdparty/sqlite/sqlite3.c">
 			<Option compilerVar="CC" />
 		</Unit>
