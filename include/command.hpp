@@ -30,11 +30,15 @@ private:
 public:
 
     bool isCommand(std::string cmd);
+
+    // command list functions
     bool parseCommand(Client *tclient, CommandList *tlist, std::string str);
     bool addCommandToCommandList(std::string cmd, CommandList *cmdlist);
 
     // some general commands
     static int commandQuit(Client *tclient, std::string str);
+    static int commandLook(Client *tclient, std::string str);
+    static int commandHelp(Client *tclient, std::string str);
 
     friend class Mud;
 };

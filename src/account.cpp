@@ -132,7 +132,7 @@ bool AccountManager::createAccount(std::string username, std::string password)
     ss << "VALUES(";
     ss << "'" << username << "',";
     ss << "'" << password << "',";
-    ss << "0";
+    ss << "1";
     ss << ");";
 
     if(sqlite3_exec(m_DB, ss.str().c_str(), sqlcallback, NULL, &errormsg) != SQLITE_OK)
@@ -338,6 +338,12 @@ int AccountManager::loginProcess(Client *tclient)
     // finish login
     else if(login_state == 100)
     {
+        // for now (until char creation is implemented, set set current room to 1 if 0)
+        if(tclient->getRoom() == 0) tclient->setRoom(1);
+
+        // do an initial room look upon logging in
+        tclient->parseCommand("look");
+
         // clear input storage
         tclient->clearStorage();
         tclient->m_LastInput = "";

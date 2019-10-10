@@ -19,6 +19,8 @@ Client::Client(sf::TcpSocket *tsocket)
     // add general commands to for all clients
     CommandManager *cmgr = Mud::getInstance()->m_CommandManager;
     cmgr->addCommandToCommandList("quit", &m_CommandList);
+    cmgr->addCommandToCommandList("help", &m_CommandList);
+    cmgr->addCommandToCommandList("look", &m_CommandList);
 }
 
 Client::~Client()
@@ -31,6 +33,13 @@ void Client::disconnect()
 {
     m_Socket->disconnect();
     m_Connected = false;
+}
+
+bool Client::setRoom(int room_id)
+{
+    if(!Mud::getInstance()->m_ZoneManager->roomExists(room_id)) return false;
+    m_CurrentRoom = room_id;
+    return true;
 }
 
 void Client::clearStorage()
@@ -72,6 +81,7 @@ bool Client::parseCommand(std::string str)
 
 bool Client::send(std::string str)
 {
+    if(str.empty()) return false;
     if(m_Socket->send(str.c_str(), str.size()) == sf::Socket::Status::Disconnected) disconnect();
     return m_Connected;
 }

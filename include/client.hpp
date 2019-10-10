@@ -27,6 +27,7 @@ public:
 
     std::string getName() { return m_Username;}
     int getRoom() { return m_CurrentRoom;}
+    bool setRoom(int room_id);
 
     // client data storage
     std::string m_LastInput;                // last recieved input
@@ -45,6 +46,7 @@ public:
     // receive data from the client, results are stored in m_LastInput
     bool receive();
     bool parseCommand(std::string str);
+
     // send data to the client
     bool send(std::string str);
     bool sendPrompt();

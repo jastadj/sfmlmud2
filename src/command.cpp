@@ -1,8 +1,10 @@
 #include "command.hpp"
 
 #include <iostream>
+#include <sstream>
 #include "mud.hpp"
 #include "tools.hpp"
+
 
 bool CommandManager::m_Initialized = false;
 
@@ -17,6 +19,8 @@ CommandManager::CommandManager()
 
     // iniitalize all commands
     addNewCommand("quit", "disconnect from server", commandQuit );
+    addNewCommand("look", "look around or at object", commandLook);
+    addNewCommand("help", "show command help", commandLook);
 
     std::cout << m_Commands.size() << " commands initialized.\n";
 }
@@ -115,6 +119,29 @@ bool CommandManager::parseCommand(Client *tclient, CommandList *tlist, std::stri
 int CommandManager::commandQuit(Client *tclient, std::string str)
 {
     tclient->disconnect();
+    return 0;
+}
+
+int CommandManager::commandLook(Client *tclient, std::string str)
+{
+    // if no arguments, do room look
+    if(str.empty())
+    {
+        std::stringstream ss;
+        std::vector<std::string> room_desc = Mud::getInstance()->m_ZoneManager->lookRoom(tclient->getRoom());
+        for(int i = 0; i < int(room_desc.size()); i++)
+        {
+            ss << room_desc[i] << "\n";
+        }
+        tclient->send(ss.str());
+
+    }
+    return 0;
+}
+
+int CommandManager::commandHelp(Client *tclient, std::string str)
+{
+
     return 0;
 }
 

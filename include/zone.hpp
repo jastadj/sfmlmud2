@@ -58,6 +58,7 @@ public:
     // public room functions
     Room *createRoom(std::string zonename, bool save_to_database = true);
     bool saveRoom(int room_id);
+    bool roomExists(int room_id);
     std::vector<std::string> lookRoom(int room_id);
 
     friend class Mud;

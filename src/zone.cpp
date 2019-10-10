@@ -317,6 +317,11 @@ bool ZoneManager::saveRoom(int room_id)
     return false;
 }
 
+bool ZoneManager::roomExists(int room_id)
+{
+    return (room_id > 0 && room_id < m_Rooms.size() );
+}
+
 std::vector<std::string> ZoneManager::lookRoom(int room_id)
 {
     std::vector<std::string> room_look;
