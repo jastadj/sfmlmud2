@@ -196,6 +196,6 @@ void Mud::updateSelector()
 int Mud::mainGame(Client *tclient)
 {
     if(!tclient) return 0;
-    tclient->send("MAIN GAME");
+    tclient->sendPrompt();
     return 0;
 }

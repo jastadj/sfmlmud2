@@ -65,3 +65,8 @@ bool Client::send(std::string str)
     if(m_Socket->send(str.c_str(), str.size()) == sf::Socket::Status::Disconnected) disconnect();
     return m_Connected;
 }
+
+bool Client::sendPrompt()
+{
+    send(">");
+}

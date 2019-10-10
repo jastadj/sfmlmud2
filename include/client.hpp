@@ -40,6 +40,7 @@ public:
     bool receive();
     // send data to the client
     bool send(std::string str);
+    bool sendPrompt();
 
     // client function pointer (give client feedback context with the function pointer)
     int (*func)(Client *tclient);

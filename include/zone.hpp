@@ -35,8 +35,9 @@ private:
 
     sqlite3 *m_DB;
 
-    // init functions
-
+    // save/load rooms in database
+    bool _LoadRooms();              // only happens once - on init
+    bool _SaveRooms();              // only happens once - on shutdown
 
     // room
     sf::Mutex m_RoomMutex;
@@ -55,7 +56,9 @@ public:
     bool zoneExists(std::string zonename);
 
     // public room functions
-    Room *createRoom(std::string zonename);
+    Room *createRoom(std::string zonename, bool save_to_database = true);
+    bool saveRoom(int room_id);
+    std::vector<std::string> lookRoom(int room_id);
 
     friend class Mud;
 };
