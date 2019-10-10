@@ -338,6 +338,9 @@ int AccountManager::loginProcess(Client *tclient)
     // finish login
     else if(login_state == 100)
     {
+        // clear input storage
+        tclient->clearStorage();
+        tclient->m_LastInput = "";
         tclient->func = Mud::mainGame;
         tclient->func(tclient);
     }

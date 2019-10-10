@@ -38,6 +38,10 @@ void Mud::start()
     std::cout << "Initializing zone manager...\n";
     m_ZoneManager = new ZoneManager(m_DB);
 
+    // initialize command/manager
+    std::cout << "Initializing command manager...\n";
+    m_CommandManager = new CommandManager();
+
     // start send and receive thread
     m_SendAndReceiveThread = new sf::Thread(Mud::sendAndRecieve, this);
     m_SendAndReceiveThread->launch();
@@ -196,6 +200,7 @@ void Mud::updateSelector()
 int Mud::mainGame(Client *tclient)
 {
     if(!tclient) return 0;
+    tclient->parseCommand(tclient->m_LastInput);
     tclient->sendPrompt();
     return 0;
 }

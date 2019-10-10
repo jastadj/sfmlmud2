@@ -2,8 +2,12 @@
 #define CLASS_CLIENT
 
 #include <SFML/Network.hpp>
+#include "command.hpp"
 
 #define CLIENT_RECEIVE_SIZE 100
+
+// forward dec
+class CommandList;
 
 class Client
 {
@@ -14,6 +18,8 @@ private:
 
     std::string m_Username;
     int m_CurrentRoom;
+
+    CommandList m_CommandList;
 
 public:
     Client(sf::TcpSocket *tsocket);
@@ -38,6 +44,7 @@ public:
 
     // receive data from the client, results are stored in m_LastInput
     bool receive();
+    bool parseCommand(std::string str);
     // send data to the client
     bool send(std::string str);
     bool sendPrompt();

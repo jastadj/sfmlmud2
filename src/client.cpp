@@ -1,6 +1,7 @@
 #include "client.hpp"
 
 #include <iostream> // debug
+#include "mud.hpp"
 
 Client::Client(sf::TcpSocket *tsocket)
 {
@@ -14,6 +15,10 @@ Client::Client(sf::TcpSocket *tsocket)
     m_StrRegisters.resize(3);
     m_IntRegisters.resize(3);
     clearStorage();
+
+    // add general commands to for all clients
+    CommandManager *cmgr = Mud::getInstance()->m_CommandManager;
+    cmgr->addCommandToCommandList("quit", &m_CommandList);
 }
 
 Client::~Client()
@@ -60,6 +65,11 @@ bool Client::receive()
     return m_Connected;
 }
 
+bool Client::parseCommand(std::string str)
+{
+    return Mud::getInstance()->m_CommandManager->parseCommand(this, &m_CommandList, str);
+}
+
 bool Client::send(std::string str)
 {
     if(m_Socket->send(str.c_str(), str.size()) == sf::Socket::Status::Disconnected) disconnect();
@@ -68,5 +78,5 @@ bool Client::send(std::string str)
 
 bool Client::sendPrompt()
 {
-    send(">");
+    return send(">");
 }

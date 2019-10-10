@@ -44,12 +44,14 @@
 		</Linker>
 		<Unit filename="include/account.hpp" />
 		<Unit filename="include/client.hpp" />
+		<Unit filename="include/command.hpp" />
 		<Unit filename="include/mud.hpp" />
 		<Unit filename="include/tools.hpp" />
 		<Unit filename="include/welcome.hpp" />
 		<Unit filename="include/zone.hpp" />
 		<Unit filename="src/account.cpp" />
 		<Unit filename="src/client.cpp" />
+		<Unit filename="src/command.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mud.cpp" />
 		<Unit filename="src/tools.cpp" />
