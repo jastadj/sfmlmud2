@@ -260,7 +260,7 @@ int AccountManager::loginProcess(Client *tclient)
     // query to make new account
     else if(login_state == 50)
     {
-        tclient->send("Create new user '" + tclient->m_StrRegisters[0] + "'?  (y/n)\n");
+        tclient->send("Create new user '" + formatUsername(tclient->m_StrRegisters[0]) + "'?  (y/n)\n");
         tclient->m_IntRegisters[0] = 54;
     }
     // check make new account response
@@ -342,13 +342,15 @@ int AccountManager::loginProcess(Client *tclient)
         if(tclient->getRoom() == 0) tclient->setRoom(1);
 
         // do an initial room look upon logging in
-        tclient->parseCommand("look");
+        //tclient->parseCommand("look");
 
         // clear input storage
         tclient->clearStorage();
         tclient->m_LastInput = "";
+        tclient->parseCommand("look");
+        tclient->sendPrompt();
         tclient->func = Mud::mainGame;
-        tclient->func(tclient);
+        //tclient->func(tclient);
     }
 
 

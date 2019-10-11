@@ -79,6 +79,11 @@ bool Client::parseCommand(std::string str)
     return Mud::getInstance()->m_CommandManager->parseCommand(this, &m_CommandList, str);
 }
 
+bool Client::showHelp(std::string str)
+{
+    return Mud::getInstance()->m_CommandManager->showHelp(this, &m_CommandList, str);
+}
+
 bool Client::send(std::string str)
 {
     if(str.empty()) return false;

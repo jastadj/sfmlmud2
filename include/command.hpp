@@ -34,6 +34,7 @@ public:
     // command list functions
     bool parseCommand(Client *tclient, CommandList *tlist, std::string str);
     bool addCommandToCommandList(std::string cmd, CommandList *cmdlist);
+    bool showHelp(Client *tclient, CommandList *cmdlist, std::string str);
 
     // some general commands
     static int commandQuit(Client *tclient, std::string str);

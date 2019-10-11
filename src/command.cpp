@@ -20,7 +20,7 @@ CommandManager::CommandManager()
     // iniitalize all commands
     addNewCommand("quit", "disconnect from server", commandQuit );
     addNewCommand("look", "look around or at object", commandLook);
-    addNewCommand("help", "show command help", commandLook);
+    addNewCommand("help", "show command help", commandHelp);
 
     std::cout << m_Commands.size() << " commands initialized.\n";
 }
@@ -71,6 +71,39 @@ bool CommandManager::addCommandToCommandList(std::string cmd, CommandList *cmdli
     return true;
 }
 
+bool CommandManager::showHelp(Client *tclient, CommandList *cmdlist, std::string str)
+{
+    if(!tclient) return false;
+
+    std::stringstream ss;
+
+    // if general help
+    if(str.empty())
+    {
+        for(int i = 0; i < int(cmdlist->m_Commands.size()); i++)
+        {
+            ss << cmdlist->m_Commands[i]->cmd << " - " << cmdlist->m_Commands[i]->help << std::endl;
+        }
+        tclient->send(ss.str());
+        return true;
+    }
+    // specific help on a command, show long help (for now show short help until implemented)
+    else
+    {
+        for(int i = 0; i < int(cmdlist->m_Commands.size()); i++)
+        {
+            if(cmdlist->m_Commands[i]->cmd == toLower(str))
+            {
+                ss << cmdlist->m_Commands[i]->cmd << " - " << cmdlist->m_Commands[i]->help << std::endl;
+                tclient->send(ss.str());
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool CommandManager::isCommand(std::string cmd)
 {
     if(cmd.empty()) return false;
@@ -93,14 +126,12 @@ bool CommandManager::parseCommand(Client *tclient, CommandList *tlist, std::stri
     if( int(words.size()) == 1) str.erase(0, cmd.size());
     else str.erase(0, cmd.size()+1);
 
-    //std::cout << "command:'" << cmd << "'\nargs:'" << str << "'\n";
-
     // check that command is in client's command list
     for(int i = 0; i < int(tlist->m_Commands.size()); i++)
     {
         if(tlist->m_Commands[i]->cmd == cmd)
         {
-            command_found = m_Commands[i];
+            command_found = tlist->m_Commands[i];
             break;
         }
     }
@@ -118,6 +149,7 @@ bool CommandManager::parseCommand(Client *tclient, CommandList *tlist, std::stri
 
 int CommandManager::commandQuit(Client *tclient, std::string str)
 {
+    tclient->send("Goodbye!\n");
     tclient->disconnect();
     return 0;
 }
@@ -141,7 +173,7 @@ int CommandManager::commandLook(Client *tclient, std::string str)
 
 int CommandManager::commandHelp(Client *tclient, std::string str)
 {
-
+    tclient->showHelp(str);
     return 0;
 }
 
