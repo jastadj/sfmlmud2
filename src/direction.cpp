@@ -13,6 +13,18 @@ std::vector<std::string> getDirections()
     return dlist;
 }
 
+int getDirectionIndex(std::string dir)
+{
+    for(int i = 0; i < DIR_COUNT; i++)
+    {
+        if(dirs[i][0] == dir || dirs[i][4] == dir)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 std::string oppositeDir(std::string dir)
 {
     std::string dir_error = "dir_error";

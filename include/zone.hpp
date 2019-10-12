@@ -57,10 +57,12 @@ public:
 
     // public room functions
     Room *createRoom(std::string zonename, bool save_to_database = true);
+    bool linkRooms(int room_a, int room_b, int dir_index);
     bool saveRoom(int room_id);
     bool roomExists(int room_id);
     std::vector<std::string> lookRoom(int room_id);
     std::vector<std::string> getExits(int room_id);
+    int getRoomNumInDirection(int room_id, int dir_index);
 
     friend class Mud;
 };

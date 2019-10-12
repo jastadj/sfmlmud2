@@ -50,11 +50,24 @@ ZoneManager::ZoneManager(sqlite3 *db)
 
         // create test zone and rooms
         if(!createZone("testzone")) std::cout << "ERROR CREATING TEST ZONE!\n";
-        Room *test_room = createRoom("testzone");
-        if(!test_room) std::cout << "ERROR CREATING TEST ROOM!\n";
-        test_room->name = "Main room of Cabin";
-        test_room->description = "This cabin has long been abandoned.  The floor is covered in a thick layer of dust.  Cobwebs have taken up all corners of the room.  A fireplace is built into the southern wall.";
-        if(!saveRoom(test_room->room_id)) std::cout << "ERROR SAVING TEST ROOM!\n";
+
+        // create room 1
+        {
+            Room *test_room = createRoom("testzone");
+            if(!test_room) std::cout << "ERROR CREATING TEST ROOM!\n";
+            test_room->name = "Main room of Cabin";
+            test_room->description = "This cabin has long been abandoned.  The floor is covered in a thick layer of dust.  Cobwebs have taken up all corners of the room.  A fireplace is built into the southern wall.";
+            if(!saveRoom(test_room->room_id)) std::cout << "ERROR SAVING TEST ROOM!\n";
+        }
+        // create room 2
+        {
+            Room *test_room = createRoom("testzone");
+            if(!test_room) std::cout << "ERROR CREATING TEST ROOM!\n";
+            test_room->name = "Cabin Storage Room";
+            test_room->description = "This is a small cramped storage room.  Sheleves are lined against the wall containg various odds and ends.";
+            if(!saveRoom(test_room->room_id)) std::cout << "ERROR SAVING TEST ROOM!\n";
+            linkRooms(1, 2, getDirectionIndex("west"));
+        }
 
 
     }
@@ -225,6 +238,47 @@ Room *ZoneManager::createRoom(std::string zonename, bool save_to_database)
     return troom;
 }
 
+bool ZoneManager::linkRooms(int room_a, int room_b, int dir_index)
+{
+    int room_b_dir = -1;
+    std::stringstream link_error_ss;
+    link_error_ss << "Error linking rooms " << room_a << "," << room_b << ": ";
+
+    // valid direction?
+    if(dir_index < 0 || dir_index >= DIR_COUNT)
+    {
+        std::cout << link_error_ss.str() << "direction index " << dir_index << " is not a valid direction!\n";
+        return false;
+    }
+
+    // get opposite room direction index
+    room_b_dir = getDirectionIndex(dirs[dir_index][1]);
+    if(room_b_dir == -1)
+    {
+        std::cout << link_error_ss.str() << "unable to determine opposite direction for dir_index " << dir_index << std::endl;
+        return false;
+    }
+
+    // rooms exist?
+    if(!roomExists(room_a) || !roomExists(room_b))
+    {
+        std::cout << link_error_ss.str() << "one of these rooms does not exist!\n";
+        return false;
+    }
+
+    // check bi-directional availability
+    if(m_Rooms[room_a].exits[dir_index] || m_Rooms[room_b].exits[room_b_dir])
+    {
+        std::cout << link_error_ss.str() << "one of these rooms is already linked!\n";
+        return false;
+    }
+
+    // link rooms
+    m_Rooms[room_a].exits[dir_index] = room_b;
+    m_Rooms[room_b].exits[room_b_dir] = room_a;
+    return true;
+}
+
 bool ZoneManager::_SaveRooms()
 {
     int error_count = 0;
@@ -390,4 +444,12 @@ std::vector<std::string> ZoneManager::getExits(int room_id)
     }
 
     return exits;
+}
+
+int ZoneManager::getRoomNumInDirection(int room_id, int dir_index)
+{
+    if(dir_index < 0 || dir_index >= DIR_COUNT) return 0;
+    if(room_id < 1 || room_id >= int(m_Rooms.size()) ) return 0;
+    return m_Rooms[room_id].exits[dir_index];
+
 }

@@ -247,7 +247,35 @@ int CommandManager::commandHelp(Client *tclient, std::string cmd, std::string ar
 
 int CommandManager::commandMoveDirection(Client *tclient, std::string cmd, std::string args)
 {
-    std::cout << "move " << cmd << std::endl;
+    int dir_index = getDirectionIndex(cmd);
+    int t_room_id = 0;
+
+    // movement arguments not implemented
+    if(!args.empty())
+    {
+        tclient->send("Unknown movement arguments [not implemented]\n");
+        return 0;
+    }
+
+    // no valid direction found
+    if(dir_index == -1)
+    {
+        tclient->send("That is not a valid direction!\n");
+        return 0;
+    }
+
+    // get room id in direction
+    t_room_id = Mud::getInstance()->m_ZoneManager->getRoomNumInDirection(tclient->getRoom(), dir_index);
+    if(!t_room_id)
+    {
+        tclient->send("You see no exit " + dirs[dir_index][0] + ".\n");
+        return 0;
+    }
+
+    // there is a room in that direction, set room and do a room look
+    tclient->setRoom(t_room_id);
+    tclient->parseCommand("look");
+
     return 0;
 }
 

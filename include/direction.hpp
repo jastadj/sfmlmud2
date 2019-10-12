@@ -16,6 +16,7 @@ static std::string dirs[DIR_COUNT][5] =
 
 
 std::vector<std::string> getDirections();
+int getDirectionIndex(std::string dir);
 std::string oppositeDirection(std::string dir);
 
 #endif // CLASS_DIRECTION
