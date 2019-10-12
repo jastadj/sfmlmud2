@@ -22,6 +22,12 @@ CommandManager::CommandManager()
     addNewCommand("look", "look around or at object", commandLook);
     addAlias("l", "look");
     addNewCommand("help", "show command help", commandHelp);
+    // add directions
+    for(int i = 0; i < DIR_COUNT; i++)
+    {
+        addNewCommand(dirs[i][0], "move " + dirs[i][0], commandMoveDirection);
+        addAlias(dirs[i][4], dirs[i][0]);
+    }
 
     std::cout << m_Commands.size() << " commands and " << m_Aliases.size() << " aliases initialized.\n";
 }
@@ -31,7 +37,7 @@ CommandManager::~CommandManager()
 
 }
 
-bool CommandManager::addNewCommand(std::string cmd, std::string help, int (*func)(Client *tclient, std::string str))
+bool CommandManager::addNewCommand(std::string cmd, std::string help, int (*func)(Client *tclient, std::string cmd, std::string args))
 {
     if(cmd.empty() || func == NULL) {std::cout << "Error creating command " << cmd << ": cmd str empty or func is null\n"; return false; }
     if(help.empty()) help = "no_help";
@@ -204,22 +210,22 @@ bool CommandManager::parseCommand(Client *tclient, CommandList *tlist, std::stri
     }
 
     // execute command
-    command_found->func(tclient, str);
+    command_found->func(tclient, cmd, str);
 
     return true;
 }
 
-int CommandManager::commandQuit(Client *tclient, std::string str)
+int CommandManager::commandQuit(Client *tclient, std::string cmd, std::string args)
 {
     tclient->send("Goodbye!\n");
     tclient->disconnect();
     return 0;
 }
 
-int CommandManager::commandLook(Client *tclient, std::string str)
+int CommandManager::commandLook(Client *tclient, std::string cmd, std::string args)
 {
     // if no arguments, do room look
-    if(str.empty())
+    if(args.empty())
     {
         std::stringstream ss;
         std::vector<std::string> room_desc = Mud::getInstance()->m_ZoneManager->lookRoom(tclient->getRoom());
@@ -233,9 +239,15 @@ int CommandManager::commandLook(Client *tclient, std::string str)
     return 0;
 }
 
-int CommandManager::commandHelp(Client *tclient, std::string str)
+int CommandManager::commandHelp(Client *tclient, std::string cmd, std::string args)
 {
-    tclient->showHelp(str);
+    tclient->showHelp(args);
+    return 0;
+}
+
+int CommandManager::commandMoveDirection(Client *tclient, std::string cmd, std::string args)
+{
+    std::cout << "move " << cmd << std::endl;
     return 0;
 }
 

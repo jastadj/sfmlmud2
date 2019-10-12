@@ -2,6 +2,7 @@
 
 #include <iostream> // debug
 #include "mud.hpp"
+#include "direction.hpp"
 
 Client::Client(sf::TcpSocket *tsocket)
 {
@@ -21,6 +22,11 @@ Client::Client(sf::TcpSocket *tsocket)
     cmgr->addCommandToCommandList("quit", &m_CommandList);
     cmgr->addCommandToCommandList("help", &m_CommandList);
     cmgr->addCommandToCommandList("look", &m_CommandList);
+    // add all directions
+    for(int i = 0; i < DIR_COUNT; i++)
+    {
+        cmgr->addCommandToCommandList(dirs[i][0], &m_CommandList);
+    }
 }
 
 Client::~Client()

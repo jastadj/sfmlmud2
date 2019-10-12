@@ -13,7 +13,7 @@ struct Command
 {
     std::string cmd;
     std::string help;
-    int (*func)(Client *tclient, std::string str);
+    int (*func)(Client *tclient, std::string cmd, std::string args);
 };
 
 struct Alias
@@ -38,7 +38,7 @@ private:
     // all commands
     std::vector<Command*> m_Commands;
     std::vector<Alias*> m_Aliases;
-    bool addNewCommand(std::string cmd, std::string help, int (*func)(Client *tclient, std::string str));
+    bool addNewCommand(std::string cmd, std::string help, int (*func)(Client *tclient, std::string cmd, std::string args));
     bool addAlias(std::string alias, std::string cmd, std::string args = "");
 
 public:
@@ -51,9 +51,10 @@ public:
     bool showHelp(Client *tclient, CommandList *cmdlist, std::string str);
 
     // some general commands
-    static int commandQuit(Client *tclient, std::string str);
-    static int commandLook(Client *tclient, std::string str);
-    static int commandHelp(Client *tclient, std::string str);
+    static int commandQuit(Client *tclient, std::string cmd, std::string args);
+    static int commandLook(Client *tclient, std::string cmd, std::string args);
+    static int commandHelp(Client *tclient, std::string cmd, std::string args);
+    static int commandMoveDirection(Client *tclient, std::string cmd, std::string args);
 
     friend class Mud;
 };
