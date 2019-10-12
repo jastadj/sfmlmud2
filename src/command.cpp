@@ -4,7 +4,7 @@
 #include <sstream>
 #include "mud.hpp"
 #include "tools.hpp"
-
+#include "social.hpp"
 
 bool CommandManager::m_Initialized = false;
 
@@ -22,6 +22,7 @@ CommandManager::CommandManager()
     addNewCommand("look", "look around or at object", commandLook);
     addAlias("l", "look");
     addNewCommand("help", "show command help", commandHelp);
+    addNewCommand("say", "say something", say);
     // add directions
     for(int i = 0; i < DIR_COUNT; i++)
     {

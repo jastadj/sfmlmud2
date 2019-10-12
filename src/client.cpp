@@ -22,6 +22,7 @@ Client::Client(sf::TcpSocket *tsocket)
     cmgr->addCommandToCommandList("quit", &m_CommandList);
     cmgr->addCommandToCommandList("help", &m_CommandList);
     cmgr->addCommandToCommandList("look", &m_CommandList);
+    cmgr->addCommandToCommandList("say", &m_CommandList);
     // add all directions
     for(int i = 0; i < DIR_COUNT; i++)
     {
