@@ -52,6 +52,10 @@ public:
 
     static int mainGame(Client *tclient);
 
+    bool broadcast(std::string msg);
+    bool broadcastToRoom(int room_id, std::string msg);
+    bool broadcastToRoomExcluding(int room_id, std::string msg, Client *tclient);
+
     // database managers
     AccountManager *m_AccountManager;
     ZoneManager *m_ZoneManager;

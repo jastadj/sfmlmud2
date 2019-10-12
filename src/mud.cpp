@@ -197,6 +197,51 @@ void Mud::updateSelector()
     m_ClientMutex.unlock();
 }
 
+bool Mud::broadcast(std::string msg)
+{
+    std::cout << "BROADCAST:" << msg << std::endl;
+    m_ClientMutex.lock();
+    for(int i = 0; i < int(m_Clients.size()); i++)
+    {
+        m_Clients[i]->send(msg);
+    }
+    m_ClientMutex.unlock();
+    return true;
+}
+
+bool Mud::broadcastToRoom(int room_id, std::string msg)
+{
+    if(m_ZoneManager->roomExists(room_id))
+    {
+        m_ClientMutex.lock();
+        for(int i = 0; i < int(m_Clients.size()); i++)
+        {
+            m_Clients[i]->send(msg);
+        }
+        m_ClientMutex.unlock();
+        return true;
+    }
+    std::cout << "Error broadcasting to room " << room_id << ", room doesn't exist!\n";
+    return false;
+}
+
+bool Mud::broadcastToRoomExcluding(int room_id, std::string msg, Client *tclient)
+{
+    if(!tclient) return false;
+    if(m_ZoneManager->roomExists(room_id))
+    {
+        m_ClientMutex.lock();
+        for(int i = 0; i < int(m_Clients.size()); i++)
+        {
+            if(m_Clients[i] != tclient) m_Clients[i]->send(msg);
+        }
+        m_ClientMutex.unlock();
+        return true;
+    }
+    std::cout << "Error broadcasting to room " << room_id << ", room doesn't exist!\n";
+    return false;
+}
+
 int Mud::mainGame(Client *tclient)
 {
     if(!tclient) return 0;
