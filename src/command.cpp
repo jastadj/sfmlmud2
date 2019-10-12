@@ -17,7 +17,7 @@ CommandManager::CommandManager()
     }
     m_Initialized = true;
 
-    // iniitalize all commands
+    // iniitalize all commands and aliases
     addNewCommand("quit", "disconnect from server", commandQuit);
     addNewCommand("look", "look around or at object", commandLook);
     addAlias("l", "look");
@@ -36,12 +36,14 @@ bool CommandManager::addNewCommand(std::string cmd, std::string help, int (*func
     if(cmd.empty() || func == NULL) {std::cout << "Error creating command " << cmd << ": cmd str empty or func is null\n"; return false; }
     if(help.empty()) help = "no_help";
 
+    // check/format cmd string
     cmd = toLower(cmd);
     if(hasSpaces(cmd)) {std::cout << "Error creating command " << cmd << ": cmd str has spaces\n"; return false; }
 
     // check that command doesn't already exist
-    if(isCommand(cmd)) {std::cout << "Error creating command " << cmd << ": cmd already exists\n"; return false; }
+    if(isCommand(cmd)) {std::cout << "Error creating command " << cmd << ": cmd/alias already exists\n"; return false; }
 
+    // create new command
     Command *newcommand = new Command;
     newcommand->cmd = cmd;
     newcommand->help = help;
@@ -53,24 +55,16 @@ bool CommandManager::addNewCommand(std::string cmd, std::string help, int (*func
 
 bool CommandManager::addAlias(std::string alias, std::string cmd, std::string args)
 {
-    std::string alias_error = "Error creating alias '" + alias + "', ";
+    std::string alias_error = "Error creating alias '" + alias + "', "; // help string
     Command *tcmd = NULL;
+
+    // check/format alias and command string
     alias = toLower(alias);
     if(hasSpaces(alias)) {std::cout << alias_error << "has spaces\n"; return false; }
     cmd = toLower(cmd);
 
-    // check that alias isn't already a command
-    if(isCommand(alias)) {std::cout << alias_error << "is already command '" << cmd << "'\n"; return false;}
-
-    // check that alias doesn't already exist
-    for(int i = 0; i < int(m_Aliases.size()); i++)
-    {
-        if(m_Aliases[i]->alias == alias)
-        {
-            std::cout << alias_error << "alias already exists\n";
-            return false;
-        }
-    }
+    // check that alias isn't already a command / alias
+    if(isCommand(alias)) {std::cout << alias_error << "is already command/alias '" << cmd << "'\n"; return false;}
 
     // find command
     for(int i = 0; i < int(m_Commands.size()); i++)
@@ -161,9 +155,15 @@ bool CommandManager::isCommand(std::string cmd)
     if(cmd.empty()) return false;
     cmd = toLower(cmd);
 
+    // check if command
     for(int i = 0; i < int(m_Commands.size()); i++)
     {
         if(m_Commands[i]->cmd == cmd) return true;
+    }
+    // check if alias
+    for(int i = 0; i < int(m_Aliases.size()); i++)
+    {
+        if(m_Aliases[i]->alias == cmd) return true;
     }
 
     return false;
