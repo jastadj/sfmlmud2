@@ -51,7 +51,19 @@ AccountManager::~AccountManager()
 
 }
 
-// 0 = successful login, 1 = bad username, 2 = bad password, -1 some error
+bool AccountManager::userLoggedIn(std::string username)
+{
+    username = formatUsername(username);
+    std::vector<std::string> players = Mud::getInstance()->getPlayerNames();
+
+    for(int i = 0; i < int(players.size()); i++)
+    {
+        if(username == players[i]) return true;
+    }
+    return false;
+}
+
+// 0 = successful login, 1 = bad username, 2 = bad password, 3 = already logged in, -1 some error
 int AccountManager::loginClient(Client *tclient, std::string username, std::string password)
 {
     if(!tclient) return -1;
@@ -62,6 +74,8 @@ int AccountManager::loginClient(Client *tclient, std::string username, std::stri
 
     // format username
     username = formatUsername(username);
+
+    if(userLoggedIn(username)) return 3;
 
     // check database
     ss << "SELECT account_name, account_password, current_room FROM accounts WHERE account_name='" << username << "';";
@@ -207,14 +221,24 @@ int AccountManager::loginProcess(Client *tclient)
             tclient->m_IntRegisters[0] = 0;
             tclient->func(tclient);
         }
-        // else, check if username exists or if its new
+        // else, check if username exists or if its new, or if already logged in
         else
         {
-            // if username is an existing account, goto query password
+            // if username is an existing account
             if(mud->m_AccountManager->usernameTaken(tclient->m_LastInput))
             {
-                tclient->m_IntRegisters[0] = 20;
-                tclient->func(tclient);
+                // if this user is already logged in
+                if(mud->m_AccountManager->userLoggedIn(tclient->m_LastInput))
+                {
+                    tclient->send("Already logged in!\n");
+                    tclient->m_IntRegisters[0] = 0;
+                    tclient->func(tclient);
+                }
+                else
+                {
+                    tclient->m_IntRegisters[0] = 20;
+                    tclient->func(tclient);
+                }
             }
             // this is username doesnt exist, query user if they want to make a new account
             else

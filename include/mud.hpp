@@ -56,6 +56,8 @@ public:
     bool broadcastToRoom(int room_id, std::string msg);
     bool broadcastToRoomExcluding(int room_id, std::string msg, Client *tclient);
 
+    std::vector<std::string> getPlayerNames(int room_id = 0);
+
     // database managers
     AccountManager *m_AccountManager;
     ZoneManager *m_ZoneManager;

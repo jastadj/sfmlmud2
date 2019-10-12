@@ -47,6 +47,7 @@
 		<Unit filename="include/command.hpp" />
 		<Unit filename="include/direction.hpp" />
 		<Unit filename="include/mud.hpp" />
+		<Unit filename="include/social.hpp" />
 		<Unit filename="include/tools.hpp" />
 		<Unit filename="include/welcome.hpp" />
 		<Unit filename="include/zone.hpp" />
@@ -56,7 +57,9 @@
 		<Unit filename="src/direction.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mud.cpp" />
+		<Unit filename="src/social.cpp" />
 		<Unit filename="src/tools.cpp" />
+		<Unit filename="src/welcome.cpp" />
 		<Unit filename="src/zone.cpp" />
 		<Unit filename="thirdparty/sqlite/sqlite3.c">
 			<Option compilerVar="CC" />

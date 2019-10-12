@@ -26,6 +26,7 @@ public:
 
     bool createAccount(std::string username, std::string password);
     bool usernameTaken(std::string username);
+    bool userLoggedIn(std::string username);
 
     friend class Mud;
 };

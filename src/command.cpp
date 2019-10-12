@@ -228,14 +228,39 @@ int CommandManager::commandLook(Client *tclient, std::string cmd, std::string ar
     // if no arguments, do room look
     if(args.empty())
     {
-        std::stringstream ss;
-        std::vector<std::string> room_desc = Mud::getInstance()->m_ZoneManager->lookRoom(tclient->getRoom());
-        for(int i = 0; i < int(room_desc.size()); i++)
-        {
-            ss << room_desc[i] << "\n";
-        }
-        tclient->send(ss.str());
+        int room = tclient->getRoom();
+        Mud *mud = Mud::getInstance();
+        std::vector<std::string> room_exits = mud->m_ZoneManager->getExits(room);
+        std::vector<std::string> players = mud->getPlayerNames(room);
 
+        std::stringstream rss;
+
+        // room name/description
+        rss << mud->m_ZoneManager->getRoomName(room) << std::endl;
+        rss << mud->m_ZoneManager->getRoomDescription(room) << std::endl;
+
+        rss << std::endl;
+
+        // get players here
+        for(int i = 0; i < int(players.size()); i++)
+        {
+            if(players[i] != tclient->getName()) rss << players[i] << " is here.\n";
+        }
+
+        // room exits
+        rss << "[ ";
+        if(!room_exits.empty())
+        {
+            for(int i = 0; i < int(room_exits.size()); i++)
+            {
+                rss << room_exits[i];
+                if(i != int(room_exits.size())-1) rss << " - ";
+            }
+        }
+        else rss << "No obvious exits";
+        rss << " ]\n";
+
+        tclient->send(rss.str());
     }
     return 0;
 }

@@ -57,7 +57,6 @@ ZoneManager::ZoneManager(sqlite3 *db)
             if(!test_room) std::cout << "ERROR CREATING TEST ROOM!\n";
             test_room->name = "Main room of Cabin";
             test_room->description = "This cabin has long been abandoned.  The floor is covered in a thick layer of dust.  Cobwebs have taken up all corners of the room.  A fireplace is built into the southern wall.";
-            if(!saveRoom(test_room->room_id)) std::cout << "ERROR SAVING TEST ROOM!\n";
         }
         // create room 2
         {
@@ -65,9 +64,12 @@ ZoneManager::ZoneManager(sqlite3 *db)
             if(!test_room) std::cout << "ERROR CREATING TEST ROOM!\n";
             test_room->name = "Cabin Storage Room";
             test_room->description = "This is a small cramped storage room.  Sheleves are lined against the wall containg various odds and ends.";
-            if(!saveRoom(test_room->room_id)) std::cout << "ERROR SAVING TEST ROOM!\n";
             linkRooms(1, 2, getDirectionIndex("west"));
         }
+
+        // save test rooms
+        std::cout << "Saving test rooms...\n";
+        if(!_SaveRooms()) std::cout << "ERROR SAVING TEST ROOMS!\n";
 
 
     }
@@ -111,6 +113,10 @@ bool ZoneManager::_LoadRooms()
         {
             troom->name = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt,2)) );
             troom->description = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt,3)) );
+            for(int i = 0; i < DIR_COUNT; i++)
+            {
+                troom->exits[i] = sqlite3_column_int(stmt, 4 + i);
+            }
             // if for some reason newly created room is not synced with expected room id from database, squawk
             if( troom->room_id != sqlite3_column_int(stmt,0))
             {
@@ -285,7 +291,7 @@ bool ZoneManager::_SaveRooms()
     m_RoomMutex.lock();
     // save all rooms
     std::cout << "Saving all rooms...\n";
-    for(int i = 0; i < int(m_Rooms.size()); i++)
+    for(int i = 1; i < int(m_Rooms.size()); i++)
     {
         if(!saveRoom(m_Rooms[i].room_id))
         {
@@ -293,7 +299,7 @@ bool ZoneManager::_SaveRooms()
             error_count++;
         }
     }
-    std::cout << "Done saving all rooms with " << error_count << " errors.\n";
+    std::cout << "Done saving " << m_Rooms.size()-1 << " rooms with " << error_count << " errors.\n";
     m_RoomMutex.unlock();
     if(error_count) return false;
     return true;
@@ -398,39 +404,6 @@ bool ZoneManager::roomExists(int room_id)
     return (room_id > 0 && room_id < int(m_Rooms.size()) );
 }
 
-std::vector<std::string> ZoneManager::lookRoom(int room_id)
-{
-    std::vector<std::string> room_look;
-    std::vector<std::string> exits = getExits(room_id);
-    if(room_id < 1 || room_id >= int(m_Rooms.size()) ) return room_look;
-
-    Room *troom = &m_Rooms[room_id];
-
-    room_look.push_back(troom->name);
-    room_look.push_back(troom->description);
-
-    // get exits
-    {
-        std::stringstream ss;
-        ss << "[ ";
-
-        if(!exits.empty())
-        {
-            for(int i = 0; i < int(exits.size()); i++)
-            {
-                ss << exits[i];
-                if(i != int(exits.size()-1) ) ss << " - ";
-            }
-        }
-        else ss << "You see no obvious exits";
-        ss << " ]";
-        room_look.push_back(ss.str());
-    }
-
-
-    return room_look;
-}
-
 std::vector<std::string> ZoneManager::getExits(int room_id)
 {
     std::vector<std::string> exits;
@@ -452,4 +425,16 @@ int ZoneManager::getRoomNumInDirection(int room_id, int dir_index)
     if(room_id < 1 || room_id >= int(m_Rooms.size()) ) return 0;
     return m_Rooms[room_id].exits[dir_index];
 
+}
+
+std::string ZoneManager::getRoomName(int room_id)
+{
+    if(!roomExists(room_id)) return "";
+    return m_Rooms[room_id].name;
+}
+
+std::string ZoneManager::getRoomDescription(int room_id)
+{
+    if(!roomExists(room_id)) return "";
+    return m_Rooms[room_id].description;
 }

@@ -60,9 +60,10 @@ public:
     bool linkRooms(int room_a, int room_b, int dir_index);
     bool saveRoom(int room_id);
     bool roomExists(int room_id);
-    std::vector<std::string> lookRoom(int room_id);
     std::vector<std::string> getExits(int room_id);
     int getRoomNumInDirection(int room_id, int dir_index);
+    std::string getRoomName(int room_id);
+    std::string getRoomDescription(int room_id);
 
     friend class Mud;
 };

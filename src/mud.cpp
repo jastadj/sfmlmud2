@@ -216,7 +216,7 @@ bool Mud::broadcastToRoom(int room_id, std::string msg)
         m_ClientMutex.lock();
         for(int i = 0; i < int(m_Clients.size()); i++)
         {
-            m_Clients[i]->send(msg);
+            if(m_Clients[i]->getRoom() == room_id) m_Clients[i]->send(msg);
         }
         m_ClientMutex.unlock();
         return true;
@@ -233,13 +233,30 @@ bool Mud::broadcastToRoomExcluding(int room_id, std::string msg, Client *tclient
         m_ClientMutex.lock();
         for(int i = 0; i < int(m_Clients.size()); i++)
         {
-            if(m_Clients[i] != tclient) m_Clients[i]->send(msg);
+            if(m_Clients[i] != tclient && m_Clients[i]->getRoom() == room_id) m_Clients[i]->send(msg);
         }
         m_ClientMutex.unlock();
         return true;
     }
     std::cout << "Error broadcasting to room " << room_id << ", room doesn't exist!\n";
     return false;
+}
+
+std::vector<std::string> Mud::getPlayerNames(int room_id)
+{
+    std::vector<std::string> players;
+    if(m_ZoneManager->roomExists(!room_id) && room_id) return players;
+
+    m_ClientMutex.lock();
+    for(int i = 0; i < int(m_Clients.size()); i++)
+    {
+        if(room_id)
+        {
+            if(m_Clients[i]->getRoom() == room_id) players.push_back(m_Clients[i]->getName());
+        }
+        else players.push_back(m_Clients[i]->getName());
+    }
+    return players;
 }
 
 int Mud::mainGame(Client *tclient)
