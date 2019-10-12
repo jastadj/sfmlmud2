@@ -33,7 +33,12 @@ ZoneManager::ZoneManager(sqlite3 *db)
         ss << "room_id INTEGER PRIMARY KEY,";
         ss << "zone TEXT NOT NULL,";
         ss << "name TEXT NOT NULL,";
-        ss << "description INTEGER";
+        ss << "description INTEGER,";
+        for(int i = 0; i < DIR_COUNT; i++)
+        {
+            ss << "exit_" << dirs[i][0];
+            if( i < DIR_COUNT-1 ) ss << ",";
+        }
         ss << ");";
 
         if(sqlite3_exec(m_DB, ss.str().c_str(), sqlcallback, NULL, &errormsg) != SQLITE_OK)
@@ -47,8 +52,8 @@ ZoneManager::ZoneManager(sqlite3 *db)
         if(!createZone("testzone")) std::cout << "ERROR CREATING TEST ZONE!\n";
         Room *test_room = createRoom("testzone");
         if(!test_room) std::cout << "ERROR CREATING TEST ROOM!\n";
-        test_room->name = "Test Room";
-        test_room->description = "This is a test room.";
+        test_room->name = "Main room of Cabin";
+        test_room->description = "This cabin has long been abandoned.  The floor is covered in a thick layer of dust.  Cobwebs have taken up all corners of the room.  A fireplace is built into the southern wall.";
         if(!saveRoom(test_room->room_id)) std::cout << "ERROR SAVING TEST ROOM!\n";
 
 
@@ -56,6 +61,7 @@ ZoneManager::ZoneManager(sqlite3 *db)
     // if room database already exists, load all rooms from db into memory
     else
     {
+        std::cout << "Loading rooms from database...\n";
         if(!_LoadRooms()) std::cout << "Error, failed to load rooms from database!\n";
     }
 }
@@ -67,7 +73,6 @@ bool ZoneManager::_LoadRooms()
     int error_count = 0;
 
     // load all rooms from database
-    std::cout << "Loading rooms from database...\n";
     ss << "SELECT * FROM rooms;";
     // compile sql statement to binary
     int rc = sqlite3_prepare_v2(m_DB, ss.str().c_str(), -1, &stmt, NULL);
@@ -87,7 +92,7 @@ bool ZoneManager::_LoadRooms()
         // if zone doesn't currently exist, create it
         if(!zoneExists(zone)) createZone(zone);
         // create room
-        Room *troom = createRoom(zone);
+        Room *troom = createRoom(zone, false);
         // if room was successfully created, set room variables from database
         if(troom)
         {
@@ -200,6 +205,7 @@ Room *ZoneManager::createRoom(std::string zonename, bool save_to_database)
         if(m_Zones[i].name == zonename)
         {
             troom->zone = zonename;
+            for(int n = 0; n < DIR_COUNT; n++) troom->exits.push_back(0);
             m_Zones[i].rooms.push_back(troom);
             break;
         }
@@ -277,7 +283,13 @@ bool ZoneManager::saveRoom(int room_id)
         ss << "SET ";
         ss << "zone = '" << troom->zone << "',";
         ss << "name = '" << troom->name << "',";
-        ss << "description = '" << troom->description << "' ";
+        ss << "description = '" << troom->description << "',";
+        for(int i = 0; i < DIR_COUNT; i++)
+        {
+            ss << "exit_" << dirs[i][0] << " = " << troom->exits[i];
+            if(i < DIR_COUNT - 1) ss << ",";
+            else ss << " ";
+        }
         ss << "WHERE ";
         ss << "rowid = " << troom->room_id;
         ss << ";";
@@ -298,12 +310,22 @@ bool ZoneManager::saveRoom(int room_id)
         ss << "rooms(";
         ss << "zone,";
         ss << "name,";
-        ss << "description";
+        ss << "description,";
+        for(int i = 0; i < DIR_COUNT; i++)
+        {
+            ss << "exit_" << dirs[i][0];
+            if(i < DIR_COUNT-1) ss << ",";
+        }
         ss << ") ";
         ss << "VALUES(";
         ss << "'" << troom->zone << "',";
         ss << "'" << troom->name << "',";
-        ss << "'" << troom->description << "'";
+        ss << "'" << troom->description << "',";
+        for(int i = 0; i < DIR_COUNT; i++)
+        {
+            ss << troom->exits[i];
+            if(i < DIR_COUNT-1) ss << ",";
+        }
         ss << ");";
         if(sqlite3_exec(m_DB, ss.str().c_str(), sqlcallback, NULL, &errormsg) != SQLITE_OK)
         {
@@ -319,18 +341,53 @@ bool ZoneManager::saveRoom(int room_id)
 
 bool ZoneManager::roomExists(int room_id)
 {
-    return (room_id > 0 && room_id < m_Rooms.size() );
+    return (room_id > 0 && room_id < int(m_Rooms.size()) );
 }
 
 std::vector<std::string> ZoneManager::lookRoom(int room_id)
 {
     std::vector<std::string> room_look;
-    if(room_id < 1 || room_id >= m_Rooms.size()) return room_look;
+    std::vector<std::string> exits = getExits(room_id);
+    if(room_id < 1 || room_id >= int(m_Rooms.size()) ) return room_look;
 
     Room *troom = &m_Rooms[room_id];
 
     room_look.push_back(troom->name);
     room_look.push_back(troom->description);
 
+    // get exits
+    {
+        std::stringstream ss;
+        ss << "[ ";
+
+        if(!exits.empty())
+        {
+            for(int i = 0; i < int(exits.size()); i++)
+            {
+                ss << exits[i];
+                if(i != int(exits.size()-1) ) ss << " - ";
+            }
+        }
+        else ss << "You see no obvious exits";
+        ss << " ]";
+        room_look.push_back(ss.str());
+    }
+
+
     return room_look;
+}
+
+std::vector<std::string> ZoneManager::getExits(int room_id)
+{
+    std::vector<std::string> exits;
+    if(!roomExists(room_id)) return exits;
+
+    Room *troom = &m_Rooms[room_id];
+
+    for(int i = 0; i < DIR_COUNT; i++)
+    {
+        if(troom->exits[i] != 0) exits.push_back(dirs[i][0]);
+    }
+
+    return exits;
 }

@@ -18,11 +18,12 @@ CommandManager::CommandManager()
     m_Initialized = true;
 
     // iniitalize all commands
-    addNewCommand("quit", "disconnect from server", commandQuit );
+    addNewCommand("quit", "disconnect from server", commandQuit);
     addNewCommand("look", "look around or at object", commandLook);
+    addAlias("l", "look");
     addNewCommand("help", "show command help", commandHelp);
 
-    std::cout << m_Commands.size() << " commands initialized.\n";
+    std::cout << m_Commands.size() << " commands and " << m_Aliases.size() << " aliases initialized.\n";
 }
 
 CommandManager::~CommandManager()
@@ -50,6 +51,48 @@ bool CommandManager::addNewCommand(std::string cmd, std::string help, int (*func
     return true;
 }
 
+bool CommandManager::addAlias(std::string alias, std::string cmd, std::string args)
+{
+    std::string alias_error = "Error creating alias '" + alias + "', ";
+    Command *tcmd = NULL;
+    alias = toLower(alias);
+    if(hasSpaces(alias)) {std::cout << alias_error << "has spaces\n"; return false; }
+    cmd = toLower(cmd);
+
+    // check that alias isn't already a command
+    if(isCommand(alias)) {std::cout << alias_error << "is already command '" << cmd << "'\n"; return false;}
+
+    // check that alias doesn't already exist
+    for(int i = 0; i < int(m_Aliases.size()); i++)
+    {
+        if(m_Aliases[i]->alias == alias)
+        {
+            std::cout << alias_error << "alias already exists\n";
+            return false;
+        }
+    }
+
+    // find command
+    for(int i = 0; i < int(m_Commands.size()); i++)
+    {
+        if( m_Commands[i]->cmd == cmd)
+        {
+            tcmd = m_Commands[i];
+            break;
+        }
+    }
+    if(!tcmd) { std::cout << alias_error << "unable to find cmd '" << cmd << "'\n"; return false;}
+
+    // create new alias
+    Alias *newalias = new Alias;
+    newalias->alias = alias;
+    newalias->cmd = tcmd;
+    newalias->args = args;
+    m_Aliases.push_back(newalias);
+
+    return true;
+}
+
 bool CommandManager::addCommandToCommandList(std::string cmd, CommandList *cmdlist)
 {
     if(!cmdlist || cmd.empty()) return false;
@@ -66,6 +109,15 @@ bool CommandManager::addCommandToCommandList(std::string cmd, CommandList *cmdli
         }
     }
     if(!tcmd) return false;
+
+    // find aliases
+    for(int i = 0; i < int(m_Aliases.size()); i++)
+    {
+        if(m_Aliases[i]->cmd == tcmd)
+        {
+            cmdlist->m_Aliases.push_back(m_Aliases[i]);
+        }
+    }
 
     cmdlist->m_Commands.push_back(tcmd);
     return true;
@@ -135,6 +187,16 @@ bool CommandManager::parseCommand(Client *tclient, CommandList *tlist, std::stri
             break;
         }
     }
+    // or is an alias
+    for(int i = 0; i < int(tlist->m_Aliases.size()); i++)
+    {
+        if(tlist->m_Aliases[i]->alias == cmd)
+        {
+            command_found = tlist->m_Aliases[i]->cmd;
+            if(!str.empty()) str = m_Aliases[i]->args + " " + str;
+            break;
+        }
+    }
     if(!command_found)
     {
         tclient->send("Huh?\n");
@@ -193,9 +255,16 @@ bool CommandList::hasCommand(std::string cmd)
 {
     if(cmd.empty()) return false;
 
+    // check commands
     for(int i = 0; i < int(m_Commands.size()); i++)
     {
         if(m_Commands[i]->cmd == cmd) return true;
+    }
+
+    // check aliases
+    for(int i = 0; i < int(m_Aliases.size()); i++)
+    {
+        if(m_Aliases[i]->alias == cmd + m_Aliases[i]->args) return true;
     }
 
     return false;

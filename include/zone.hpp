@@ -5,7 +5,7 @@
 #include <vector>
 #include <SFML/System.hpp>
 #include "sqlite3.h"
-
+#include "direction.hpp"
 
 struct Room
 {
@@ -60,6 +60,7 @@ public:
     bool saveRoom(int room_id);
     bool roomExists(int room_id);
     std::vector<std::string> lookRoom(int room_id);
+    std::vector<std::string> getExits(int room_id);
 
     friend class Mud;
 };

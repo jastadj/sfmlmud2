@@ -16,6 +16,18 @@ struct Command
     int (*func)(Client *tclient, std::string str);
 };
 
+struct Alias
+{
+    std::string alias;
+    Command *cmd;
+    std::string args;
+
+    Alias()
+    {
+        cmd = NULL;
+    }
+};
+
 class CommandManager
 {
 private:
@@ -25,7 +37,9 @@ private:
 
     // all commands
     std::vector<Command*> m_Commands;
+    std::vector<Alias*> m_Aliases;
     bool addNewCommand(std::string cmd, std::string help, int (*func)(Client *tclient, std::string str));
+    bool addAlias(std::string alias, std::string cmd, std::string args = "");
 
 public:
 
@@ -49,6 +63,7 @@ class CommandList
 private:
 
     std::vector<Command*> m_Commands;
+    std::vector<Alias*> m_Aliases;
 
 public:
     CommandList();
